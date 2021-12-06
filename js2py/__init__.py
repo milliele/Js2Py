@@ -72,4 +72,4 @@ __all__ = [
 from .base import PyJsException
 from .evaljs import *
 from .translators import parse as parse_js
-from .node_import import require
+from .node_import import *
