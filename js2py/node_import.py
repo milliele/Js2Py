@@ -21,6 +21,7 @@ __all__ = [
     'get_module_version',
     'install_if_necessary',
     'get_module_py_path',
+    'get_module_py_version',
     'translate_npm_module',
     'require'
 ]
@@ -227,6 +228,24 @@ def get_module_py_path(module_name):
     py_name = _get_module_py_name(pkg_name)
     module_py_path = os.path.join(PY_MODULE_PATH, f'{py_name}.py')
     return module_py_path
+
+
+def get_module_py_version(module_name):
+    """Get the version of the python module
+
+    Args:
+        module_name (str): in format `` [<@scope>/]<pkg>[<@version>]``. If version is provided, it would check whether
+                           the current version installed is consistent with the required version. If not,
+                           ``NotImplementedError`` will be raised.
+    """
+    pkg_name, _ = _split_name_version(module_name)
+    mod_py_path = get_module_py_path(module_name)
+    if not os.path.exists(mod_py_path):
+        raise NotImplementedError(f'The python module of "{pkg_name}" does not exist!')
+    with codecs.open(mod_py_path, "r", "utf-8") as f:
+        header = f.readline().strip()
+    version = header[11:]
+    return version
 
 
 def translate_npm_module(module_name, include_polyfill=False, cwd='.'):

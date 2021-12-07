@@ -3,10 +3,11 @@
 
 import json
 import os.path
+import shutil
 import unittest
 from io import StringIO
 from unittest.mock import patch
-import shutil
+
 import six
 
 from js2py.node_import import *
@@ -113,6 +114,10 @@ class TestJs2Py(unittest.TestCase):
             os.remove(python_path)
 
         # Python module not exist, re-translate - JS package not installed, raise error
+        with self.assertRaises(NotImplementedError) as cm:
+            get_module_py_version(package_v)
+        self.assertEqual(cm.exception.args[0],
+                         f'The python module of "crypto-js" does not exist!')
         with self.assertRaises(NotImplementedError) as cm2:
             with self.assertLogs(level='WARNING') as cm:
                 require(package_v, cwd=self.dirname)
@@ -156,6 +161,7 @@ class TestJs2Py(unittest.TestCase):
                          f'consistent with the required version "3.1.9-1".')
         self.assertTrue(os.path.exists(python_path))
         self.check_translate_output(output)
+        self.assertEqual(get_module_py_version(package), '3.1.9-1')
         test_module(CryptoJS)
 
         # Python module header wrong, re-translate
